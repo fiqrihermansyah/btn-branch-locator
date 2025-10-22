@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #005bfd 0%, #0047c2 100%);
+            background: #f3f4f6;
             min-height: 100vh;
             padding: 20px;
         }
@@ -27,7 +27,7 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 91, 253, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             margin-bottom: 20px;
         }
 
@@ -437,7 +437,7 @@
     <div class="container">
         <div class="admin-container">
             <div class="admin-header">
-                <h2>Dashboard Admin</h2>
+                <h2>Dashboard SPV BTN</h2>
                 <div class="header-actions">
                     <a href="index.html" class="btn-view">Lihat Peta</a>
                     <button class="btn-logout" onclick="logout()">Logout</button>
@@ -538,26 +538,22 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Konfigurasi Supabase
         const SUPABASE_URL = 'https://xnhyfuyhgdtfbuamhkck.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhuaHlmdXloZ2R0ZmJ1YW1oa2NrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzgxODcsImV4cCI6MjA3NjcxNDE4N30.TpIKrskga1sp_mw6nrOkcHRTkeVEOPW8R26pM0XWTWY';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentEditId = null;
 
-        // Check Authentication
         if (!sessionStorage.getItem('isAdmin')) {
             window.location.href = 'login.html';
         }
 
-        // Message Helper
         function showMessage(msg, type = 'success') {
             const el = document.getElementById('messageContainer');
             el.innerHTML = `<div class="message ${type}">${msg}</div>`;
             setTimeout(() => el.innerHTML = '', 4000);
         }
 
-        // Logout
         function logout() {
             if (confirm('Yakin ingin logout?')) {
                 sessionStorage.removeItem('isAdmin');
@@ -565,7 +561,6 @@
             }
         }
 
-        // Tab Management
         function switchTab(tabName) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -578,7 +573,6 @@
             }
         }
 
-        // Get Branches from Supabase
         async function getBranches() {
             try {
                 const { data, error } = await supabase
@@ -597,7 +591,6 @@
             }
         }
 
-        // Load Branch List
         async function loadBranchList() {
             const listDiv = document.getElementById('branchList');
             listDiv.innerHTML = '<div class="loading">Memuat data cabang...</div>';
@@ -631,7 +624,6 @@
             }).join('');
         }
 
-        // Branch Form Submit
         document.getElementById('branchForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -659,13 +651,11 @@
             try {
                 let result;
                 if (currentEditId) {
-                    // Update existing branch
                     result = await supabase
                         .from('branches')
                         .update(branchData)
                         .eq('id', currentEditId);
                 } else {
-                    // Insert new branch
                     result = await supabase
                         .from('branches')
                         .insert([branchData]);
@@ -680,7 +670,6 @@
                     document.querySelectorAll('.service-toggle').forEach(t => t.checked = false);
                     currentEditId = null;
                     
-                    // Switch to manage tab
                     document.querySelectorAll('.tab')[1].click();
                 }
             } catch (error) {
@@ -692,7 +681,6 @@
             btn.textContent = 'Simpan Cabang';
         });
 
-        // Edit Branch
         async function editBranch(id) {
             try {
                 const { data, error } = await supabase
@@ -729,7 +717,6 @@
             }
         }
 
-        // Delete Branch
         async function deleteBranch(id) {
             if (!confirm('❌ Apakah Anda yakin ingin menghapus cabang ini?')) return;
             
@@ -752,7 +739,6 @@
             }
         }
 
-        // Load branch list on page load
         loadBranchList();
     </script>
 </body>
