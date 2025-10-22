@@ -482,7 +482,9 @@
     }
 
     serviceFilter.addEventListener('change', () => {
-      loadMarkers(searchInput.value, serviceFilter.value);
+      searchInput.value = ''; // Clear search bar saat filter berubah
+      resultsDiv.style.display = 'none'; // Sembunyikan hasil pencarian
+      loadMarkers('', serviceFilter.value); // Load semua cabang dengan filter
     });
 
     let resizeTimer;
