@@ -417,57 +417,32 @@
     }
 
     async function loadMarkers(nameFilter = '', service = '') {
-      markers.forEach(m => map.removeLayer(m));
-      markers = [];
-      const branches = await getBranches();
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
 
-      const filtered = branches.filter(b => {
-        const matchName = b.name.toLowerCase().includes(nameFilter.toLowerCase());
-        const matchService = service ? b.services.some(s => s.name === service && s.active) : true;
-        return matchName && matchService;
+    const { data: branches, error } = await supabase.from('branches').select('*');
+    if (error) return console.error(error);
+
+    const filtered = branches.filter(b => {
+      const matchName = b.name.toLowerCase().includes(nameFilter.toLowerCase());
+      const matchService = service ? b.services.some(s => s.name === service && s.active) : true;
+      return matchName && matchService;
+    });
+
+    filtered.forEach(b => {
+      const icon = L.divIcon({
+        html: '<div style="background-color:#6366f1;width:24px;height:24px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>',
+        iconSize: [24, 24],
+        iconAnchor: [12, 24],
+        className: ''
       });
 
-      filtered.forEach(b => {
-        const active = b.services.filter(s => s.active);
-        const icon = L.divIcon({
-          html: '<div style="background-color:#6366f1;width:24px;height:24px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>',
-          iconSize: [24, 24],
-          iconAnchor: [12, 24],
-          className: ''
-        });
+      const marker = L.marker([b.lat, b.lng], { icon }).addTo(map);
+      marker.bindPopup(`<b>${b.name}</b><br>${b.address}`);
+      markers.push(marker);
+    });
+  }
 
-        const isMobile = window.innerWidth <= 768;
-        const popupContent = `
-          <div style="font-family:Inter,sans-serif;min-width:${isMobile ? '160px' : '200px'};">
-            <div style="font-size:${isMobile ? '0.9rem' : '1rem'};font-weight:700;color:#1f2937;margin-bottom:0.4rem;padding-bottom:0.4rem;border-bottom:2px solid #6366f1;">
-              ${b.name}
-            </div>
-            <div style="font-size:${isMobile ? '0.75rem' : '0.85rem'};color:#6b7280;margin-bottom:0.6rem;line-height:1.3;">
-              ${b.address}
-            </div>
-            <div style="font-size:${isMobile ? '0.7rem' : '0.8rem'};color:#4b5563;font-weight:600;margin-bottom:0.35rem;">
-              Layanan Aktif:
-            </div>
-            <div style="display:flex;flex-wrap:wrap;gap:0.3rem;">
-              ${active.map(s => `<span style="background:#eef2ff;color:#6366f1;padding:${isMobile ? '0.2rem 0.4rem' : '0.25rem 0.6rem'};border-radius:10px;font-size:${isMobile ? '0.65rem' : '0.75rem'};font-weight:500;">${s.name}</span>`).join('')}
-            </div>
-          </div>
-        `;
-
-        const marker = L.marker([b.lat, b.lng], { icon }).addTo(map);
-        marker.bindPopup(popupContent, {
-          maxWidth: isMobile ? 240 : 280,
-          className: 'custom-popup'
-        });
-        marker._data = b;
-        markers.push(marker);
-      });
-
-      if (filtered.length && markers.length) {
-        const group = L.featureGroup(markers);
-        map.fitBounds(group.getBounds().pad(0.2));
-      }
-    }
 
     function getDistance(lat1, lon1, lat2, lon2) {
       const R = 6371;
@@ -576,5 +551,29 @@
 
     document.addEventListener('DOMContentLoaded', initMap);
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // 🔑 Konfigurasi Supabase
+  const SUPABASE_URL = 'https://xnhyfuyhgdtfbuamhkck.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhuaHlmdXloZ2R0ZmJ1YW1oa2NrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzgxODcsImV4cCI6MjA3NjcxNDE4N30.TpIKrskga1sp_mw6nrOkcHRTkeVEOPW8R26pM0XWTWY';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  async function getBranches() {
+    const { data, error } = await supabase.from('branches').select('*');
+    if (error) console.error(error);
+    return data || [];
+  }
+
+  async function saveBranch(branch) {
+    const { error } = await supabase.from('branches').insert([branch]);
+    if (error) console.error('Gagal menambah cabang:', error);
+  }
+
+  // Panggil saat peta di-load
+  document.addEventListener('DOMContentLoaded', async () => {
+    const branches = await getBranches();
+    console.log(branches); 
+  });
+</script>
 </body>
 </html>

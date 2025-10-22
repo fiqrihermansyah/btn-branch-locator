@@ -1,661 +1,331 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - BTN Branch & Service Locator</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .admin-container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .admin-header h2 {
-            color: #667eea;
-            font-size: 28px;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-logout, .btn-view {
-            padding: 10px 20px;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.2s;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-logout {
-            background: #dc3545;
-        }
-
-        .btn-logout:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
-
-        .btn-view {
-            background: #28a745;
-        }
-
-        .btn-view:hover {
-            background: #218838;
-            transform: translateY(-2px);
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e0e0e0;
-            flex-wrap: wrap;
-        }
-
-        .tab {
-            padding: 12px 24px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #666;
-            font-weight: 500;
-            position: relative;
-            transition: color 0.3s;
-        }
-
-        .tab.active {
-            color: #667eea;
-        }
-
-        .tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #667eea;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .branch-form {
-            display: grid;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 0;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        .service-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 5px;
-        }
-
-        .toggle {
-            position: relative;
-            width: 50px;
-            height: 26px;
-        }
-
-        .toggle input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: 0.4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: 0.4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #667eea;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(24px);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .branch-list {
-            display: grid;
-            gap: 15px;
-        }
-
-        .branch-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
-
-        .branch-card h3 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .branch-card p {
-            color: #666;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        .branch-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .btn-edit, .btn-delete {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: transform 0.2s;
-        }
-
-        .btn-edit {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-edit:hover {
-            background: #218838;
-            transform: translateY(-2px);
-        }
-
-        .btn-delete {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-delete:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
-
-        .active-services {
-            margin-top: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .service-badge {
-            background: #667eea;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 12px;
-        }
-
-        .service-badge.inactive {
-            background: #ccc;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: #666;
-        }
-
-        .message {
-            padding: 12px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-weight: 500;
-        }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .services-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .admin-header h2 {
-                font-size: 22px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - BTN Branch & Service Locator</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    h2 { color: #667eea; }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: white;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+    .btn-view { background: #28a745; text-decoration: none; display: inline-block; }
+    .btn-logout { background: #dc3545; }
+    .btn-view:hover, .btn-logout:hover { transform: translateY(-2px); }
+    .tabs { display: flex; gap: 10px; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+    .tab {
+      background: none; border: none; cursor: pointer; padding: 12px 20px;
+      font-weight: 600; color: #666; transition: color 0.2s;
+    }
+    .tab.active { color: #667eea; border-bottom: 3px solid #667eea; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 8px; font-weight: 500; color: #333; }
+    input {
+      width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px;
+      transition: border-color 0.2s;
+    }
+    input:focus { border-color: #667eea; outline: none; }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .service-item {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #f8f9fa; padding: 10px 12px; border-radius: 6px;
+    }
+    .toggle { position: relative; width: 46px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: #ccc; border-radius: 34px; transition: 0.4s;
+    }
+    .slider::before {
+      content: ""; position: absolute; width: 18px; height: 18px;
+      left: 3px; bottom: 3px; background: white; border-radius: 50%;
+      transition: 0.4s;
+    }
+    input:checked + .slider { background: #667eea; }
+    input:checked + .slider::before { transform: translateX(22px); }
+    .btn-submit {
+      width: 100%; background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none; color: white; padding: 12px; border-radius: 8px;
+      font-weight: 600; cursor: pointer;
+    }
+    .btn-submit:hover { transform: translateY(-2px); }
+    .branch-card {
+      background: #f9fafb;
+      padding: 15px 20px;
+      border-left: 4px solid #667eea;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .branch-card h3 { margin-bottom: 6px; color: #333; }
+    .service-badge {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin-right: 4px;
+      margin-top: 4px;
+    }
+    .service-badge.inactive { background: #ccc; }
+    .branch-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+    }
+    .btn-edit { background: #28a745; }
+    .btn-delete { background: #dc3545; }
+    .message {
+      margin-bottom: 15px;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+    @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="admin-container">
-            <div class="admin-header">
-                <h2> Dashboard Admin</h2>
-                <div class="header-actions">
-                    <a href="index.html" class="btn-view">Lihat Peta</a>
-                    <button class="btn-logout" onclick="logout()">Logout</button>
-                </div>
-            </div>
-
-            <div id="messageContainer"></div>
-
-            <div class="tabs">
-                <button class="tab active" onclick="switchTab('add')">➕ Tambah Cabang</button>
-                <button class="tab" onclick="switchTab('manage')">Kelola Cabang</button>
-            </div>
-
-            <div id="addTab" class="tab-content active">
-                <form id="branchForm" class="branch-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Nama Cabang *</label>
-                            <input type="text" id="branchName" required placeholder="Contoh: Cabang Jakarta Pusat">
-                        </div>
-                        <div class="form-group">
-                            <label>Kode Cabang *</label>
-                            <input type="text" id="branchCode" required placeholder="Contoh: JKT001">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Alamat *</label>
-                        <input type="text" id="branchAddress" required placeholder="Alamat lengkap cabang">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Latitude *</label>
-                            <input type="number" step="any" id="branchLat" required placeholder="-6.2088">
-                        </div>
-                        <div class="form-group">
-                            <label>Longitude *</label>
-                            <input type="number" step="any" id="branchLng" required placeholder="106.8456">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Layanan Aktif Hari Ini</label>
-                        <div class="services-grid" id="servicesGrid">
-                            <div class="service-item">
-                                <span>KPR</span>
-                                <label class="toggle">
-                                    <input type="checkbox" class="service-toggle" data-service="KPR">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="service-item">
-                                <span>KUR</span>
-                                <label class="toggle">
-                                    <input type="checkbox" class="service-toggle" data-service="KUR">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="service-item">
-                                <span>Tabungan</span>
-                                <label class="toggle">
-                                    <input type="checkbox" class="service-toggle" data-service="Tabungan">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="service-item">
-                                <span>Deposito</span>
-                                <label class="toggle">
-                                    <input type="checkbox" class="service-toggle" data-service="Deposito">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="service-item">
-                                <span>Kartu Kredit</span>
-                                <label class="toggle">
-                                    <input type="checkbox" class="service-toggle" data-service="Kartu Kredit">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="service-item">
-                                <span>Transfer</span>
-                                <label class="toggle">
-                                    <input type="checkbox" class="service-toggle" data-service="Transfer">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn" id="submitBtn">Simpan Cabang</button>
-                </form>
-            </div>
-
-            <div id="manageTab" class="tab-content">
-                <div class="loading" id="loadingBranches">Memuat data cabang...</div>
-                <div class="branch-list" id="branchList"></div>
-            </div>
-        </div>
+  <div class="container">
+    <div class="admin-header">
+      <h2>Dashboard Admin</h2>
+      <div>
+        <a href="index.html" class="btn btn-view">Lihat Peta</a>
+        <button class="btn btn-logout" onclick="logout()">Logout</button>
+      </div>
     </div>
 
-    <script>
-        let currentEditId = null;
+    <div id="messageContainer"></div>
 
-        // Check Authentication
-        if (!sessionStorage.getItem('isAdmin')) {
-            window.location.href = 'login.html';
-        }
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(event, 'add')">➕ Tambah Cabang</button>
+      <button class="tab" onclick="switchTab(event, 'manage')">Kelola Cabang</button>
+    </div>
 
-        // Logout
-        function logout() {
-            if (confirm('Yakin ingin logout?')) {
-                sessionStorage.removeItem('isAdmin');
-                window.location.href = 'login.html';
-            }
-        }
+    <div id="addTab" class="tab-content active">
+      <form id="branchForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nama Cabang *</label>
+            <input type="text" id="branchName" required>
+          </div>
+          <div class="form-group">
+            <label>Kode Cabang *</label>
+            <input type="text" id="branchCode" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Alamat *</label>
+          <input type="text" id="branchAddress" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Latitude *</label>
+            <input type="number" step="any" id="branchLat" required>
+          </div>
+          <div class="form-group">
+            <label>Longitude *</label>
+            <input type="number" step="any" id="branchLng" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Layanan Aktif</label>
+          <div class="services-grid" id="servicesGrid">
+            ${['KPR','KUR','Tabungan','Deposito','Kartu Kredit','Transfer'].map(s => `
+              <div class="service-item">
+                <span>${s}</span>
+                <label class="toggle">
+                  <input type="checkbox" class="service-toggle" data-service="${s}">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <button type="submit" class="btn-submit" id="submitBtn">Simpan Cabang</button>
+      </form>
+    </div>
 
-        // Show Message
-        function showMessage(message, type = 'success') {
-            const container = document.getElementById('messageContainer');
-            container.innerHTML = `<div class="message ${type}">${message}</div>`;
-            setTimeout(() => {
-                container.innerHTML = '';
-            }, 3000);
-        }
+    <div id="manageTab" class="tab-content">
+      <div id="branchList">Memuat data...</div>
+    </div>
+  </div>
 
-        // Tab Management
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tabName + 'Tab').classList.add('active');
-            
-            if (tabName === 'manage') {
-                loadBranchList();
-            }
-        }
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-        // Storage Functions
-        async function getBranches() {
-            try {
-                const result = await window.storage.get('branches', true);
-                if (result && result.value) {
-                    return JSON.parse(result.value);
-                }
-            } catch (error) {
-                console.log('No branches found');
-            }
-            return [];
-        }
+    const SUPABASE_URL = "https://xnhyfuyhgdtfbuamhkck.supabase.co"; 
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhuaHlmdXloZ2R0ZmJ1YW1oa2NrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzgxODcsImV4cCI6MjA3NjcxNDE4N30.TpIKrskga1sp_mw6nrOkcHRTkeVEOPW8R26pM0XWTWY"; // 🔧 ganti dengan milikmu
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        async function saveBranches(branches) {
-            try {
-                await window.storage.set('branches', JSON.stringify(branches), true);
-                return true;
-            } catch (error) {
-                console.error('Error saving branches:', error);
-                showMessage('❌ Gagal menyimpan data: ' + error.message, 'error');
-                return false;
-            }
-        }
+    let currentEditId = null;
 
-        // Branch Form Submit
-        document.getElementById('branchForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Menyimpan...';
+    // ✅ Cek Login Admin
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) window.location.href = "login.html";
 
-            const branches = await getBranches();
-            const services = [];
-            
-            document.querySelectorAll('.service-toggle').forEach(toggle => {
-                services.push({
-                    name: toggle.dataset.service,
-                    active: toggle.checked
-                });
-            });
+    // 🔹 Logout
+    window.logout = async function() {
+      await supabase.auth.signOut();
+      window.location.href = "login.html";
+    };
 
-            const branchData = {
-                id: currentEditId || Date.now().toString(),
-                name: document.getElementById('branchName').value,
-                code: document.getElementById('branchCode').value,
-                address: document.getElementById('branchAddress').value,
-                lat: parseFloat(document.getElementById('branchLat').value),
-                lng: parseFloat(document.getElementById('branchLng').value),
-                services: services
-            };
+    // 🔹 Tampilkan Pesan
+    function showMessage(msg, type="success") {
+      const container = document.getElementById("messageContainer");
+      container.innerHTML = `<div class="message ${type}">${msg}</div>`;
+      setTimeout(() => container.innerHTML = "", 3000);
+    }
 
-            if (currentEditId) {
-                const index = branches.findIndex(b => b.id === currentEditId);
-                branches[index] = branchData;
-                currentEditId = null;
-            } else {
-                branches.push(branchData);
-            }
+    // 🔹 Ganti Tab
+    window.switchTab = (e, tab) => {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      e.target.classList.add("active");
+      document.getElementById(tab + "Tab").classList.add("active");
+      if (tab === "manage") loadBranchList();
+    };
 
-            const saved = await saveBranches(branches);
-            
-            if (saved) {
-                this.reset();
-                document.querySelectorAll('.service-toggle').forEach(t => t.checked = false);
-                showMessage('✅ Cabang berhasil disimpan!');
-                
-                // Switch to manage tab
-                setTimeout(() => {
-                    document.querySelectorAll('.tab')[1].click();
-                }, 1000);
-            }
+    // 🔹 Simpan Cabang (Insert / Update)
+    document.getElementById("branchForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true; btn.textContent = "⏳ Menyimpan...";
 
-            submitBtn.disabled = false;
-            submitBtn.textContent = '💾 Simpan Cabang';
-        });
+      const services = [...document.querySelectorAll(".service-toggle")].map(i => ({
+        name: i.dataset.service, active: i.checked
+      }));
 
-        // Load Branch List
-        async function loadBranchList() {
-            const loadingEl = document.getElementById('loadingBranches');
-            const listDiv = document.getElementById('branchList');
-            
-            loadingEl.style.display = 'block';
-            listDiv.innerHTML = '';
+      const branch = {
+        name: branchName.value.trim(),
+        code: branchCode.value.trim(),
+        address: branchAddress.value.trim(),
+        lat: parseFloat(branchLat.value),
+        lng: parseFloat(branchLng.value),
+        services
+      };
 
-            const branches = await getBranches();
-            
-            loadingEl.style.display = 'none';
+      let result;
+      if (currentEditId) {
+        result = await supabase.from("branches").update(branch).eq("id", currentEditId);
+      } else {
+        result = await supabase.from("branches").insert([branch]);
+      }
 
-            if (branches.length === 0) {
-                listDiv.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Belum ada cabang yang ditambahkan</p>';
-                return;
-            }
+      if (result.error) {
+        console.error(result.error);
+        showMessage("❌ Gagal menyimpan cabang: " + result.error.message, "error");
+      } else {
+        showMessage("✅ Cabang berhasil disimpan!");
+        document.getElementById("branchForm").reset();
+        document.querySelectorAll(".service-toggle").forEach(i => i.checked = false);
+        currentEditId = null;
+        btn.textContent = "💾 Simpan Cabang";
+        switchTab({ target: document.querySelectorAll(".tab")[1] }, "manage");
+      }
+      btn.disabled = false;
+    });
 
-            listDiv.innerHTML = branches.map(branch => {
-                const activeServices = branch.services.filter(s => s.active);
-                return `
-                    <div class="branch-card">
-                        <h3>${branch.name} (${branch.code})</h3>
-                        <p><strong>Alamat:</strong> ${branch.address}</p>
-                        <p><strong>Koordinat:</strong> ${branch.lat}, ${branch.lng}</p>
-                        <div class="active-services">
-                            <strong>Layanan Aktif:</strong>
-                            ${branch.services.map(s => 
-                                `<span class="service-badge ${s.active ? '' : 'inactive'}">${s.name}</span>`
-                            ).join('')}
-                        </div>
-                        <div class="branch-actions">
-                            <button class="btn-edit" onclick="editBranch('${branch.id}')">✏️ Edit</button>
-                            <button class="btn-delete" onclick="deleteBranch('${branch.id}')">🗑️ Hapus</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
+    // 🔹 Ambil dan Tampilkan Cabang
+    async function loadBranchList() {
+      const list = document.getElementById("branchList");
+      list.innerHTML = "⏳ Memuat data...";
+      const { data, error } = await supabase.from("branches").select("*").order("created_at", { ascending: false });
 
-        // Edit Branch
-        async function editBranch(id) {
-            const branches = await getBranches();
-            const branch = branches.find(b => b.id === id);
-            
-            if (branch) {
-                currentEditId = id;
-                document.getElementById('branchName').value = branch.name;
-                document.getElementById('branchCode').value = branch.code;
-                document.getElementById('branchAddress').value = branch.address;
-                document.getElementById('branchLat').value = branch.lat;
-                document.getElementById('branchLng').value = branch.lng;
-                
-                branch.services.forEach(service => {
-                    const toggle = document.querySelector(`[data-service="${service.name}"]`);
-                    if (toggle) toggle.checked = service.active;
-                });
-                
-                document.getElementById('submitBtn').textContent = ' Update Cabang';
-                document.querySelectorAll('.tab')[0].click();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
+      if (error) {
+        list.innerHTML = `<p style="color:red;">Gagal memuat data: ${error.message}</p>`;
+        return;
+      }
+      if (!data.length) {
+        list.innerHTML = `<p style="color:#999; text-align:center;">Belum ada cabang</p>`;
+        return;
+      }
 
-        // Delete Branch
-        async function deleteBranch(id) {
-            if (confirm('❌ Apakah Anda yakin ingin menghapus cabang ini?')) {
-                let branches = await getBranches();
-                branches = branches.filter(b => b.id !== id);
-                const saved = await saveBranches(branches);
-                
-                if (saved) {
-                    loadBranchList();
-                    showMessage('✅ Cabang berhasil dihapus!');
-                }
-            }
-        }
+      list.innerHTML = data.map(b => `
+        <div class="branch-card">
+          <h3>${b.name} (${b.code})</h3>
+          <p>${b.address}</p>
+          <small>${b.lat}, ${b.lng}</small>
+          <div>
+            ${b.services.map(s => `<span class="service-badge ${s.active ? "" : "inactive"}">${s.name}</span>`).join("")}
+          </div>
+          <div class="branch-actions">
+            <button class="btn btn-edit" onclick="editBranch('${b.id}')">✏️ Edit</button>
+            <button class="btn btn-delete" onclick="deleteBranch('${b.id}')">🗑️ Hapus</button>
+          </div>
+        </div>
+      `).join("");
+    }
 
-        // Load branch list on page load
-        if (document.getElementById('manageTab').classList.contains('active')) {
-            loadBranchList();
-        }
-    </script>
+    // 🔹 Edit
+    window.editBranch = async function(id) {
+      const { data } = await supabase.from("branches").select("*").eq("id", id).single();
+      if (!data) return;
+      currentEditId = id;
+      branchName.value = data.name;
+      branchCode.value = data.code;
+      branchAddress.value = data.address;
+      branchLat.value = data.lat;
+      branchLng.value = data.lng;
+      data.services.forEach(s => {
+        const toggle = document.querySelector(`[data-service="${s.name}"]`);
+        if (toggle) toggle.checked = s.active;
+      });
+      switchTab({ target: document.querySelector(".tab") }, "add");
+      document.getElementById("submitBtn").textContent = "🔄 Update Cabang";
+    };
+
+    // 🔹 Hapus
+    window.deleteBranch = async function(id) {
+      if (!confirm("Yakin ingin menghapus cabang ini?")) return;
+      const { error } = await supabase.from("branches").delete().eq("id", id);
+      if (error) showMessage("❌ Gagal menghapus: " + error.message, "error");
+      else {
+        showMessage("✅ Cabang berhasil dihapus!");
+        loadBranchList();
+      }
+    };
+
+    // 🚀 Load daftar awal
+    loadBranchList();
+  </script>
 </body>
 </html>
