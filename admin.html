@@ -646,8 +646,8 @@
 
             listDiv.innerHTML = branches.map(branch => {
                 const activeServices = branch.services.filter(s => s.active);
-                const phoneDisplay = branch.phone ? `<p><strong>📞 Telepon:</strong> ${branch.phone}</p>` : '';
-                const hoursDisplay = branch.hours ? `<p><strong>🕒 Jam Operasional:</strong> ${branch.hours}</p>` : '';
+                const phoneDisplay = branch.phone ? `<p><strong>Telepon:</strong> ${branch.phone}</p>` : '';
+                const hoursDisplay = branch.hours ? `<p><strong>Jam Operasional:</strong> ${branch.hours}</p>` : '';
                 
                 return `
                     <div class="branch-card">
