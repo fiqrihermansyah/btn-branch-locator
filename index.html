@@ -235,6 +235,20 @@
       color: var(--text-light);
     }
 
+    .popup-info-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.8rem;
+    }
+
+    .popup-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
     @media (max-width: 768px) {
       .header {
         padding: 1rem;
@@ -269,7 +283,6 @@
         <input type="checkbox" id="themeToggle" />
       </div>
       <h1>BTN Branch & Service Locator</h1>
-      <img src="logobtn.png" alt="Logo BTN" class="header-logo" />
       <p>Temukan cabang bank terdekat dan layanan yang tersedia</p>
       <p>Made with ❤️ by <strong>One Direction Team ODP BTN 68</strong></p>
     </div>
@@ -308,7 +321,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // Konfigurasi Supabase
     const SUPABASE_URL = 'https://xnhyfuyhgdtfbuamhkck.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhuaHlmdXloZ2R0ZmJ1YW1oa2NrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzgxODcsImV4cCI6MjA3NjcxNDE4N30.TpIKrskga1sp_mw6nrOkcHRTkeVEOPW8R26pM0XWTWY';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -356,6 +368,17 @@
       }
     }
 
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return (R * c).toFixed(2);
+    }
+
     async function loadMarkers(nameFilter = '', service = '') {
       markers.forEach(m => map.removeLayer(m));
       markers = [];
@@ -378,15 +401,52 @@
         });
 
         const isMobile = window.innerWidth <= 768;
+        
+        // Calculate distance if user position is available
+        let distanceHtml = '';
+        if (userPos) {
+          const dist = getDistance(userPos[0], userPos[1], b.lat, b.lng);
+          distanceHtml = `
+            <div class="popup-info-row" style="color:#10b981;font-weight:600;">
+              <svg class="popup-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+              </svg>
+              <span>${dist} km dari lokasi Anda</span>
+            </div>
+          `;
+        }
+
+        // Phone and hours display
+        const phoneHtml = b.phone ? `
+          <div class="popup-info-row">
+            <svg class="popup-icon" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+            </svg>
+            <span>${b.phone}</span>
+          </div>
+        ` : '';
+
+        const hoursHtml = b.hours ? `
+          <div class="popup-info-row">
+            <svg class="popup-icon" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+            </svg>
+            <span>${b.hours}</span>
+          </div>
+        ` : '';
+
         const popupContent = `
-          <div style="font-family:Inter,sans-serif;min-width:${isMobile ? '160px' : '200px'};">
-            <div style="font-size:${isMobile ? '0.9rem' : '1rem'};font-weight:700;color:#1f2937;margin-bottom:0.4rem;padding-bottom:0.4rem;border-bottom:2px solid #6366f1;">
+          <div style="font-family:Inter,sans-serif;min-width:${isMobile ? '180px' : '220px'};">
+            <div style="font-size:${isMobile ? '0.95rem' : '1.05rem'};font-weight:700;color:#1f2937;margin-bottom:0.5rem;padding-bottom:0.5rem;border-bottom:2px solid #6366f1;">
               ${b.name}
             </div>
-            <div style="font-size:${isMobile ? '0.75rem' : '0.85rem'};color:#6b7280;margin-bottom:0.6rem;line-height:1.3;">
+            <div style="font-size:${isMobile ? '0.75rem' : '0.85rem'};color:#6b7280;margin-bottom:0.6rem;line-height:1.4;">
               ${b.address}
             </div>
-            <div style="font-size:${isMobile ? '0.7rem' : '0.8rem'};color:#4b5563;font-weight:600;margin-bottom:0.35rem;">
+            ${distanceHtml}
+            ${phoneHtml}
+            ${hoursHtml}
+            <div style="font-size:${isMobile ? '0.7rem' : '0.8rem'};color:#4b5563;font-weight:600;margin:0.6rem 0 0.35rem;">
               Layanan Aktif:
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:0.3rem;">
@@ -397,7 +457,7 @@
 
         const marker = L.marker([b.lat, b.lng], { icon }).addTo(map);
         marker.bindPopup(popupContent, {
-          maxWidth: isMobile ? 240 : 280,
+          maxWidth: isMobile ? 260 : 300,
           className: 'custom-popup'
         });
         marker._data = b;
@@ -408,17 +468,6 @@
         const group = L.featureGroup(markers);
         map.fitBounds(group.getBounds().pad(0.2));
       }
-    }
-
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) ** 2 +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) ** 2;
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return (R * c).toFixed(2);
     }
 
     const searchInput = document.getElementById('searchInput');
@@ -483,9 +532,9 @@
     }
 
     serviceFilter.addEventListener('change', () => {
-      searchInput.value = ''; // Clear search bar saat filter berubah
-      resultsDiv.style.display = 'none'; // Sembunyikan hasil pencarian
-      loadMarkers('', serviceFilter.value); // Load semua cabang dengan filter
+      searchInput.value = '';
+      resultsDiv.style.display = 'none';
+      loadMarkers('', serviceFilter.value);
     });
 
     let resizeTimer;
